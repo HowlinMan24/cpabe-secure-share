@@ -1,0 +1,65 @@
+# ============================================================================
+# docker-compose.yml — CP-ABE Secure File Sharing
+# ============================================================================
+#
+# Services
+# ────────
+#   storage   : untrusted storage server (FastAPI on port 8000)
+#   client    : interactive shell for CLI commands and demos
+#
+# Quick start
+# ───────────
+#   docker compose build          # takes ~10 min first time (charm compilation)
+#   docker compose up -d storage  # start storage server in background
+#   docker compose run --rm client python cli.py demo
+#   docker compose run --rm client python cli.py demo-collusion
+#
+# The 'client' service mounts local directories for keys and files so
+# they persist between runs and are accessible from the host filesystem.
+# ============================================================================
+
+services:
+
+  # ── Storage server ─────────────────────────────────────────────────────────
+  storage:
+    build: .
+    image: cpabe-secure-share
+    container_name: cpabe-storage
+    command: python3 -m storage_server.server
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist stored encrypted blobs on the host
+      - ./storage:/app/storage
+    environment:
+      - STORAGE_DIR=/app/storage
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+  # ── Interactive client ──────────────────────────────────────────────────────
+  client:
+    build: .
+    image: cpabe-secure-share
+    container_name: cpabe-client
+    depends_on:
+      storage:
+        condition: service_healthy
+    volumes:
+      # Keys and files are shared with the host so they survive container restarts
+      - ./keys:/app/keys
+      - ./uploads:/app/uploads
+      - ./downloads:/app/downloads
+    environment:
+      # Point the CLI at the storage service by its Docker Compose service name
+      - STORAGE_SERVER_URL=http://storage:8000
+      - KEYS_DIR=/app/keys
+    stdin_open: true
+    tty: true
+    # Default: print CLI help.  Override on the command line:
+    #   docker compose run --rm client python cli.py setup
+    command: python3 cli.py --help

@@ -1,0 +1,29 @@
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+.env
+
+# Key material — never commit
+keys/
+*.pkl
+
+# Encrypted packages and decrypted output
+storage/
+uploads/
+downloads/
+*.pkg
+
+# Virtual environment
+.venv/
+venv/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store

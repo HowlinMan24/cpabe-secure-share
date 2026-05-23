@@ -1,0 +1,17 @@
+# Storage server
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# AES-256-GCM (used in hybrid encryption layer)
+cryptography==41.0.7
+
+# HTTP client (CLI upload/download commands)
+requests==2.31.0
+
+# CLI framework
+click==8.1.7
+
+# NOTE: charm-crypto is NOT listed here.
+# It depends on native PBC and GMP C libraries and must be installed
+# via the Dockerfile (built from source). See README.md § Setup.

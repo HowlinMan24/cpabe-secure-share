@@ -1,0 +1,13 @@
+.venv/
+.git/
+.idea/
+__pycache__/
+*.pyc
+*.pkl
+keys/
+storage/
+uploads/
+downloads/
+*.pkg
+.DS_Store
+README.md
